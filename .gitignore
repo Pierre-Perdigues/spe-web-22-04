@@ -1,0 +1,7 @@
+# Dépendances
+backend/node_modules/
+frontend/node_modules/
+
+# Fichiers de base de données SQLite
+*.sqlite
+*.sqlite3
