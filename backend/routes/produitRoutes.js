@@ -5,16 +5,17 @@ const db = require('../db/db');
 
 // Ajouter des routes spécifiques
 router.get('/', (req, res) => {
-    const sql = "SELECT * FROM produits";
+    const sql = 'SELECT * FROM produits';
     db.all(sql, [], (err, rows) => {
         if (err) {
             res.status(400).json({"error":err.message});
             return;
         }
-        res.json({
-            "message":"success",
-            "data":rows
-        })
+        
+        res.json({ 
+            'title': 'Liste des Produits',
+            'data': rows 
+        });
     });
 });
 

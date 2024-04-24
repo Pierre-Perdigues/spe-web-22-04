@@ -1,6 +1,7 @@
 const express = require('express');
 const {creationDb} = require('./db/creationDb');
 const userRoutes = require('./routes/userRoutes');
+const produitRoutes = require('./routes/produitRoutes');
 const cors = require('cors');
 const app = express();
 const port = 5000;
@@ -34,7 +35,7 @@ app.get('/', (req, res) => {
 
 // Utiliser les routes pour les utilisateurs
 app.use('/users', userRoutes);
-
+app.use('/produits', produitRoutes);
 app.get("/stats", (req, res) => {
     // const sql = "SELECT * FROM users";
     // db.all(sql, [], (err, rows) => {

@@ -41,6 +41,10 @@ app.get('/connexion', (req, res) => {
     res.render('connexion'); // Rend la vue connexion.ejs
 });
 
+app.get('/produits', (req, res) => {
+    res.render('produits'); // Rend la vue connexion.ejs
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

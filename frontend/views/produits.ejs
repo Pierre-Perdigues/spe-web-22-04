@@ -1,0 +1,71 @@
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<%- include('partials/header') %>
+<body>
+    <div class="row justify-content-center">
+        <div class="col-md-12 text-center py-5 p">
+            <h1>Nos produits</h1>
+        </div>
+    </div>
+    <div id="produitsConent" class="container mt-3">
+        <div id="produits" class="row"></div>
+    </div>
+</body>
+    <script>
+        function fetchData() {
+            return fetch('http://127.0.0.1:5000/produits')  // Assurez-vous que l'URL est correcte pour votre backend
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result);  // Vous devriez maintenant voir le contenu de l'objet incluant "message" et "data"
+                    if (!Array.isArray(result.data)) {
+                        throw new TypeError('Expected an array of produits');
+                    }
+                    return result.data.map(prdt => transformProductData(prdt));  // Utilisez result.data pour accéder au tableau
+                });
+        }
+
+        function transformProductData(prdt) {
+            return {
+                id: prdt.id,
+                nom: prdt.libelle,
+                description: prdt.description,
+                prix: prdt.prix,
+                cate: prdt.categorie,
+            };
+        }
+
+        function generateProductHTML(prdt) {
+            return `
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <!-- <img src="${prdt.image || 'path/to/default-image.jpg'}" class="card-img-top" alt="${prdt.nom}"> -->
+                    <div class="card-body">
+                        <h5 class="card-title">${prdt.nom}</h5>
+                        <p class="card-text">${prdt.description}</p>
+                        <p class="card-text">Prix: ${prdt.prix}€</p>
+                        <p class="card-text">Catégorie: ${prdt.categorie}</p>
+                    </div>
+                    <button type="button" class="btn">Voir produits</button>
+                </div>
+            </div>
+        `;
+        }
+
+        function renderProducts(prdts) {
+            const prdtsHtml = prdts.map(prdt => generateProductHTML(prdt)).join('');
+            document.getElementById('produits').innerHTML = prdtsHtml;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData()
+                .then(renderProducts)
+                .catch(error => console.error('Error fetching data:', error));
+        });
+    </script>
+
+    </html>
