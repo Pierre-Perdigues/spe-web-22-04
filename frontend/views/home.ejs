@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceuil</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<%- include('partials/header') %>
+
+    <style>
+        body .container {
+            padding-top: 50px;
+            text-align: center;
+        }
+        .menu-item {
+            margin: 10px 0;
+        }
+        .menu-icon {
+            margin-left: 8px;
+        }
+    </style>
+<body>
+    <div class="container">
+        <h1>Bienvenue</h1>
+        <p class="lead">Où voulez vous aller ?</p>
+        <div class="menu-item">
+            <a href="/inscription" class="btn btn-primary">Inscription</a>
+        </div>
+        <div class="menu-item">
+            <a href="/connexion" class="btn btn-primary">Connexion</a>
+        </div>
+        <div class="menu-item">
+            <a href="/produits" class="btn btn-primary">Produits</a>
+        </div>
+        <div class="menu-item">
+            <a href="/statistiques" class="btn btn-primary">Statistiques</a>
+        </div>
+    </div>
+</body>
+</html>

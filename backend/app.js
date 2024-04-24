@@ -1,8 +1,12 @@
 const express = require('express');
+const {creationDb} = require('./db/creationDb');
 const userRoutes = require('./routes/userRoutes');
 const cors = require('cors');
 const app = express();
 const port = 5000;
+
+// Initialise la base de données
+creationDb()
 
 // Configuration dynamique des CORS basée sur l'environnement
 const allowedOrigins = ['http://127.0.0.1:3000', 'http://127.0.0.1:5000/'];
