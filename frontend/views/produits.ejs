@@ -1,21 +1,21 @@
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription</title>
+    <title>Produits</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <%- include('partials/header') %>
-<body>
-    <div class="row justify-content-center">
-        <div class="col-md-12 text-center py-5 p">
-            <h1>Nos produits</h1>
+
+    <body>
+        <div class="row justify-content-center">
+            <div class="col-md-12 text-center py-5 p">
+                <h1>Nos produits</h1>
+            </div>
         </div>
-    </div>
-    <div id="produitsConent" class="container mt-3">
-        <div id="produits" class="row"></div>
-    </div>
-</body>
+        <div id="produitsConent" class="container mt-3">
+            <div id="produits" class="row"></div>
+        </div>
+    </body>
     <script>
         function fetchData() {
             return fetch('http://127.0.0.1:5000/produits')  // Assurez-vous que l'URL est correcte pour votre backend
@@ -50,7 +50,7 @@
                         <p class="card-text">Prix: ${prdt.prix}€</p>
                         <p class="card-text">Catégorie: ${prdt.categorie}</p>
                     </div>
-                    <button type="button" class="btn">Voir produits</button>
+                    <button type="button" class="btn" onclick="voirProduit(${prdt.id})">Voir produits</button>
                 </div>
             </div>
         `;
@@ -59,6 +59,10 @@
         function renderProducts(prdts) {
             const prdtsHtml = prdts.map(prdt => generateProductHTML(prdt)).join('');
             document.getElementById('produits').innerHTML = prdtsHtml;
+        }
+
+        function voirProduit(id) {
+            window.location.href = `/produits-detail/${id}`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {

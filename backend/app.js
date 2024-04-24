@@ -1,6 +1,7 @@
 const express = require('express');
 const {creationDb} = require('./db/creationDb');
 const userRoutes = require('./routes/userRoutes');
+const path = require('path');
 const produitRoutes = require('./routes/produitRoutes');
 const cors = require('cors');
 const app = express();
@@ -8,6 +9,9 @@ const port = 5000;
 
 // Initialise la base de données
 creationDb()
+
+// Configurez le dossier public comme un dossier de contenu statique
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Configuration dynamique des CORS basée sur l'environnement
 const allowedOrigins = ['http://127.0.0.1:3000', 'http://127.0.0.1:5000/'];
@@ -35,6 +39,7 @@ app.get('/', (req, res) => {
 
 // Utiliser les routes pour les utilisateurs
 app.use('/users', userRoutes);
+// app.use('/image', '/image/');
 app.use('/produits', produitRoutes);
 app.get("/stats", (req, res) => {
     // const sql = "SELECT * FROM users";

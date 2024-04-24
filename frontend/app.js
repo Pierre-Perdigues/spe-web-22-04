@@ -10,7 +10,7 @@ const { expressCspHeader, INLINE, NONE, SELF } = require('express-csp-header');
 app.use(expressCspHeader({
     directives: {
         'default-src': [SELF],
-        'img-src': [SELF, 'https://trusted.images.com'],
+        'img-src': [SELF, 'http://127.0.0.1:5000/public/image/'],
         'script-src': [SELF, INLINE, 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js'],
         'style-src': [SELF, INLINE, 'https://fonts.googleapis.com', 
             'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',],
@@ -37,14 +37,17 @@ app.get('/inscription', (req, res) => {
     res.render('inscription'); // Rend la vue inscription.ejs
 });
 
-app.get('/connexion', (req, res) => {
+app.get('/connexion',(req, res) => {
     res.render('connexion'); // Rend la vue connexion.ejs
 });
 
 app.get('/produits', (req, res) => {
-    res.render('produits'); // Rend la vue connexion.ejs
+    res.render('produits'); // Rend la vue produits.ejs
 });
 
+app.get('/produits-detail/:id', (req, res) => {
+    res.render('produitDetail'); // Rend la vue produits.ejs
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

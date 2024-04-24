@@ -18,8 +18,30 @@ router.get('/', (req, res) => {
     });
 });
 
+// Connection
 router.post('/', (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).send({ message: 'Username and password are required' });
+    }
+    
+    const hashedPassword = bcrypt.hashSync(password, 8); // Hashage du mot de passe
+
+    const query = `SELECT * FROM users WHERE name= ? AND password = ?`;
+    db.get(query, [username, hashedPassword], function(err) {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).send({ message: 'Error registering new user', error: err.message });
+        }
+        res.status(200).json({ 
+            message: 'User find successfully', 
+            userId: this.lastID });
+    });
+});
+
+// Inscription
+router.post('/new', (req, res) => {
+    const { username, password } = req.body;
     if (!username || !password) {
         return res.status(400).send({ message: 'Username and password are required' });
     }
@@ -32,7 +54,9 @@ router.post('/', (req, res) => {
             console.error(err.message);
             return res.status(500).send({ message: 'Error registering new user', error: err.message });
         }
-        res.status(201).send({ message: 'User created successfully', id: this.lastID });
+        res.status(200).json({ 
+            message: 'User created successfully', 
+            userId: this.lastID });
     });
 });
 

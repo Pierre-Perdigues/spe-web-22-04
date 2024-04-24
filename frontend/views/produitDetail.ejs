@@ -1,0 +1,50 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produits Détail</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<%- include('partials/header') %>
+
+    <body>
+        <div class="container my-5" id="product-detail">
+            
+        </div>
+    </body>
+    <script>
+        function fetchProductDetails(id) {
+            fetch(`http://127.0.0.1:5000/produits/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    const produit = data.produit;
+                    document.getElementById('product-detail').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                                <!-- Image Placeholder if needed -->
+                                <img src="${produit.image || 'http://127.0.0.1:5000/public/image/default-plate.jpg'}" class="img-fluid" alt="${produit.libelle}"> 
+                            </div>
+                        <div class="col-md-6">
+                            <h1>${produit.libelle}</h1>
+                            <p>${produit.description}</p>
+                            <p class="font-weight-bold">Prix: ${produit.prix}€</p>
+                            <p>Catégorie: ${produit.categorie}</p>
+                        </div>
+                    </div>
+                `;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Récupérer l'ID du produit de l'URL, par exemple en utilisant window.location.pathname
+        document.addEventListener('DOMContentLoaded', () => {
+            const productId = window.location.pathname.split('/')[2]; // Ajustez selon l'URL
+            fetchProductDetails(productId);
+        });
+
+    </script>
+    </body>
+
+    </html>

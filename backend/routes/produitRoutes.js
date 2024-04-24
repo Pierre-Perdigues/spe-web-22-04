@@ -24,7 +24,15 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    res.send(`Affichage du produits avec l'id ${req.params.id}`);
+    const id = req.params.id;
+    db.get('SELECT * FROM produits WHERE id = ?', [id], (err, produit) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        res.json({ produit });
+    });
 });
 
 router.put('/:id', (req, res) => {
