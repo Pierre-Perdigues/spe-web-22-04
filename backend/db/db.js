@@ -12,6 +12,11 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
     }
 });
 
+db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name text, 
+    password text
+)`);
 
 
 module.exports = db;
