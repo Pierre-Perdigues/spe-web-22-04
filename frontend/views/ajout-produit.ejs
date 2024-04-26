@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un produit</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<%- include('partials/header') %>
+
+    <body>
+        <div class="container mt-5">
+            <h2 class="mb-4">Ajouter un nouveau produit</h2>
+            <form enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="nom">Nom du produit</label>
+                    <input type="text" class="form-control" id="nom" name="nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="images">Images du produit</label>
+                    <input type="file" class="form-control-file" id="images" name="images"
+                        accept=".jpg, .jpeg, .png, .webp" multiple>
+                </div>
+                <div class="form-group">
+                    <label for="prix">Prix (€)</label>
+                    <input type="number" class="form-control" id="prix" name="prix" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="categorie">Catégorie</label>
+                    <input type="text" class="form-control" id="categorie" name="categorie">
+                </div>
+                <input type="hidden" id="_csrf" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-primary">Soumettre</button>
+            </form>
+        </div>
+    </body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('form');
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();  // Empêche le comportement de soumission standard
+
+                // Création de l'objet FormData à partir du formulaire
+                const formData = new FormData(form);
+                // formData.append('_csrf', document.getElementById('_csrf').value); // Ajoute le token CSRF
+
+                // Envoi des données à votre API interne pour vérification CSRF et traitement initial
+                fetch('http://127.0.0.1:3000/ajout-produit', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(res => {
+                        console.log(res);
+                        if (!res.ok) throw new Error('error');
+                    })
+                    .then(() => {
+                        // Envoi des données au serveur final
+                        fetch('http://127.0.0.1:5000/produits', {
+                            method: 'POST',
+                            body: formData // Envoie FormData directement, ce qui inclut les fichiers et les autres champs
+                        })
+                            .then(response => {
+                                console.log(response);
+                                if (!response.ok) throw new Error('Failed to submit product data');
+                            })
+                            .then(() => {
+                                window.location.href = '/produits'; // Redirige l'utilisateur vers la page des produits après succès
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
+        });
+    </script>
+
+</html>

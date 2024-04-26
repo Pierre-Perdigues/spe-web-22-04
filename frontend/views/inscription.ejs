@@ -15,7 +15,7 @@
                 <div class="card">
                     <h5 class="card-header">Inscription</h5>
                     <div class="card-body">
-                        <form id="registerForm">
+                        <form action="/inscription" method="post" id="registerForm">
                             <div class="form-group">
                                 <label for="username">Nom d'utilisateur:</label>
                                 <input type="text" id="username" name="username" class="form-control" required>
@@ -24,7 +24,10 @@
                                 <label for="password">Mot de passe:</label>
                                 <input type="password" id="password" name="password" class="form-control" required>
                             </div>
+                            <div id="coucou"></div>
+                            </div>
                             <button type="submit" class="btn btn-primary">S'inscrire</button>
+                            <input type="hidden" id="_csrf" name="_csrf" value="<%= csrfToken %>">
                             <div id="errorMessage" class="alert alert-danger mt-2" style="display: none;"></div>
                         </form>
                     </div>
@@ -34,34 +37,34 @@
     </div>
 
     <script>
-        document.getElementById('registerForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        // document.getElementById('registerForm').addEventListener('submit', function (event) {
+        //     event.preventDefault();
+        //     const username = document.getElementById('username').value;
+        //     const password = document.getElementById('password').value;
 
-            fetch('http://127.0.0.1:5000/users/new', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password })
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();  // Si la requête est réussie, on parse le JSON
-                } else {
-                    throw new Error('Inscription échouée');  // Si échec, on lance une exception
-                }
-            })
-            .then(data => {
-                window.location.href = 'http://127.0.0.1:3000/connexion';  // Redirection vers la page de connexion
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('errorMessage').style.display = 'block';  // Affiche le message d'erreur
-                document.getElementById('errorMessage').textContent = 'Inscription échouée. Veuillez réessayer.';  // Message d'erreur
-            });
-        });
+        //     fetch('http://127.0.0.1:5000/users/new', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({ username, password })
+        //     })
+        //     .then(response => {
+        //         if (response.ok) {
+        //             return response.json(); 
+        //         } else {
+        //             throw new Error('Inscription échouée');
+        //         }
+        //     })
+        //     .then(data => {
+        //         window.location.href = '/connexion';  // Redirection vers la page de connexion
+        //     })
+        //     .catch(error => {
+        //         console.error('Error:', error);
+        //         document.getElementById('errorMessage').style.display = 'block';  // Affiche le message d'erreur
+        //         document.getElementById('errorMessage').textContent = 'Inscription échouée.';  // Message d'erreur
+        //     });
+        // });
     </script>
 </body>
 

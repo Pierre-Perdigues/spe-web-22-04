@@ -11,64 +11,86 @@
             <div class="col-md-12 text-center py-5 p">
                 <h1>Nos produits</h1>
             </div>
+            <input type="text" id="searchInput" placeholder="Recherche produits">
+            <% if (isAuthenticated) { %>
+            <div class="col-md-12 text-center py-5 p">
+                <button type="button" class="btn btn-primary" onclick="window.location.href = '/ajout-produit'">Nouveau produit</button>
+            </div>
+            <% } %>
         </div>
+
         <div id="produitsConent" class="container mt-3">
             <div id="produits" class="row"></div>
         </div>
     </body>
     <script>
-        function fetchData() {
-            return fetch('http://127.0.0.1:5000/produits')  // Assurez-vous que l'URL est correcte pour votre backend
-                .then(response => response.json())
-                .then(result => {
-                    console.log(result);  // Vous devriez maintenant voir le contenu de l'objet incluant "message" et "data"
-                    if (!Array.isArray(result.data)) {
-                        throw new TypeError('Expected an array of produits');
-                    }
-                    return result.data.map(prdt => transformProductData(prdt));  // Utilisez result.data pour accéder au tableau
-                });
+        function ajoutPanier(id) {
+            let panier = sessionStorage.getItem('panier');
+            panier = panier ? JSON.parse(panier) : {};
+
+            if (panier[id]) {
+                panier[id]++;
+            } else {
+                panier[id] = 1;
+            }
+
+            sessionStorage.setItem('panier', JSON.stringify(panier));
         }
 
-        function transformProductData(prdt) {
-            return {
-                id: prdt.id,
-                nom: prdt.libelle,
-                description: prdt.description,
-                prix: prdt.prix,
-                cate: prdt.categorie,
-            };
+        function afficherPanier() {
+            let panier = sessionStorage.getItem('panier');
+            panier = panier ? JSON.parse(panier) : {};
+            console.log("Contenu du panier :", panier);
         }
 
-        function generateProductHTML(prdt) {
-            return `
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
-                    <!-- <img src="${prdt.image || 'path/to/default-image.jpg'}" class="card-img-top" alt="${prdt.nom}"> -->
-                    <div class="card-body">
-                        <h5 class="card-title">${prdt.nom}</h5>
-                        <p class="card-text">${prdt.description}</p>
-                        <p class="card-text">Prix: ${prdt.prix}€</p>
-                        <p class="card-text">Catégorie: ${prdt.categorie}</p>
-                    </div>
-                    <button type="button" class="btn" onclick="voirProduit(${prdt.id})">Voir produits</button>
-                </div>
-            </div>
-        `;
-        }
 
-        function renderProducts(prdts) {
-            const prdtsHtml = prdts.map(prdt => generateProductHTML(prdt)).join('');
-            document.getElementById('produits').innerHTML = prdtsHtml;
-        }
-
-        function voirProduit(id) {
-            window.location.href = `/produits-detail/${id}`;
-        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            fetchData()
-                .then(renderProducts)
-                .catch(error => console.error('Error fetching data:', error));
+            return fetch('http://127.0.0.1:5000/produits')
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result);
+                    // Verrifie que je recois bien un tableau
+                    if (!Array.isArray(result.data)) {
+                        throw new TypeError('Les données ne sont pas un tableau');
+                    }
+                    return result.data.map(prdt => ({
+                        id: prdt.id,
+                        nom: prdt.libelle,
+                        description: prdt.description,
+                        prix: prdt.prix,
+                        cate: prdt.categorie,
+                    }));
+                })
+                .then(prdts => {
+                    const input = document.getElementById('searchInput');
+                    const resultsContainer = document.getElementById('produits');
+                    // A chaque entré de touche on filtre et on retourne notre constante fait en html avec les données
+                    input.addEventListener('input', function (e) {
+                        const filteredProducts = prdts.filter(prdt =>
+                            prdt.nom.toLowerCase().includes(e.target.value.toLowerCase())
+                        );
+                        const prdtHTML = filteredProducts.map(prdt => (
+                            `<div class="col-md-4 mb-3">
+                                <div class="card h-100">
+                                    <!-- <img src="${prdt.image || 'path/to/default-image.jpg'}" class="card-img-top" alt="${prdt.nom}"> -->
+                                    <div class="card-body">
+                                        <h5 class="card-title">${prdt.nom}</h5>
+                                        <p class="card-text">${prdt.description}</p>
+                                        <p class="card-text">Prix: ${prdt.prix}€</p>
+                                        <p class="card-text">Catégorie: ${prdt.categorie}</p>
+                                    </div>
+                                    <button type="button" class="btn" onclick="window.location.href = '/produits-detail/${prdt.id}'">Voir produits</button>
+                                    <button type="button" class="btn" onclick="ajoutPanier(${prdt.id})">Ajout Panier</button>
+                                </div>
+                            </div>`
+                        ));
+                        resultsContainer.innerHTML = prdtHTML.join('');
+                    });
+
+                    // Initialiser l'affichage avec toutes les données
+                    input.dispatchEvent(new Event('input'));
+                });
         });
     </script>
 
