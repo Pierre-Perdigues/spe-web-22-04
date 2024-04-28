@@ -10,10 +10,10 @@ app.use(express.urlencoded({ extended: true }));
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 const crypto = require('crypto');
-const { Blob } = require('buffer');   
+const { Blob } = require('buffer');
 const fs = require('fs');
-// var FormData = require('form-data');
 const path = require('path');
+const xss = require('xss');
 
 const session = require('express-session');
 
@@ -180,7 +180,7 @@ app.post('/inscription', ensureGuest, (req, res, next) => {
             const hasLowerCase = /[a-z]/.test(password);
             const hasNumber = /[0-9]/.test(password);
             const hasSpecialChar = /[\@\#\$\%\^\&\*\(\)\_\+\!\?\/]/.test(password)
-        
+
             return hasMinLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
         }
 
@@ -273,37 +273,45 @@ app.get('/logout', (req, res) => {
     });
 });
 
+
 app.post('/ajout-produit', upload.array('images', 12), ensureAuthenticated, (req, res, next) => {
     if (!tokens.verify(secretCsrf, req.body._csrf)) {
         throw new Error('invalid token!')
     } else {
-        console.log("c'est ok");
-        console.log(req.body);
-        console.log("---------");
-        const myForm = new FormData()
-        myForm.append("nom", req.body.nom)
-        myForm.append("description", req.body.description)
-        myForm.append("prix", req.body.prix)
-        myForm.append("categorie", req.body.categorie)
-        console.log("---------");
+        const cleanNom = xss(req.body.nom);
+        const cleanDescription = xss(req.body.description);
+        const cleanPrix = xss(req.body.prix);
+        const cleanCategorie = xss(req.body.categorie);
+
+        // Vérification que le prix est un nombre valide
+        if (isNaN(cleanPrix)) {
+            return res.status(400).send({ error: 'Le prix doit être un chiffre valide.' });
+        }
+
+        const myForm = new FormData();
+        myForm.append("nom", cleanNom);
+        myForm.append("description", cleanDescription);
+        myForm.append("prix", cleanPrix);
+        myForm.append("categorie", cleanCategorie);
+
         // Ajout des fichiers
         req.files.forEach(file => {
             const fileBlob = new Blob([file.buffer], { type: file.mimetype });
             myForm.append('images', fileBlob, file.originalname);
         });
+
         fetch('http://127.0.0.1:5000/produits', {
             method: 'POST',
             body: myForm // Envoie FormData directement, ce qui inclut les fichiers et les autres champs
         })
-            .then((response) => {
+            .then(response => {
                 if (response.ok) {
                     console.log('Produit ajouté avec succès');
                     res.redirect('/produits'); // Effectue la redirection si la requête est réussie
                 }
-            })
-
+            });
     }
-})
+});
 
 authenticatedRoutes.forEach(route => {
     app[route.method](route.path, ensureAuthenticated, route.handler);
