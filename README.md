@@ -20,4 +20,4 @@ Se rendre sur "http://127.0.0.1:3000/", vous devriez charger la page d'accueil d
 Au démarrage les tables de la base de donnée contient un utilisateur test : 
 username : User-Project
 password : Mon@Sup3rMdp
-, il vous faudra donc vous inscrire et ensuite crée un produit pour pouvoir observer le comportement des pages
+Il y a aussi de base 2 produits dans l'application
