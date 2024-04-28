@@ -174,6 +174,20 @@ app.post('/inscription', ensureGuest, (req, res, next) => {
     if (!tokens.verify(secretCsrf, req.body._csrf)) {
         throw new Error('invalid token!')
     } else {
+        function validatePassword(password) {
+            const hasMinLength = password.length >= 8;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecialChar = /[\@\#\$\%\^\&\*\(\)\_\+\!\?\/]/.test(password)
+        
+            return hasMinLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+        }
+
+        if (!validatePassword(req.body.password)) {
+            return res.status(500).send({ message: 'Le mot de passe ne respecte pas les critères requis.' });
+        }
+
         console.log(req.body.username);
         fetch('http://127.0.0.1:5000/users/new', {
             method: 'POST',
@@ -194,15 +208,6 @@ app.post('/inscription', ensureGuest, (req, res, next) => {
             })
     }
 })
-
-// app.post('/ajout-produit', upload.array('images', 12), ensureAuthenticated, (req, res, next) => {
-//     if (!tokens.verify(secretCsrf, req.body._csrf)) {
-//         throw new Error('invalid token!')
-//     } else {
-//         console.log("c'est ok");
-//         return res.status(201)
-//     }
-// });
 
 app.get('/produits', (req, res) => {
     res.render('produits', { nonce: req.nonce }); // Rend la vue produits.ejs

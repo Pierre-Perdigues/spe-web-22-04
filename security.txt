@@ -1,0 +1,5 @@
+Contact: mailto:pierre.perdigues@livecampus.tech
+Contact: mailto:aurelien.destailleur@livecampus.tech
+Expires: 2024-05-02T22:00:00.000Z
+Preferred-Languages: fr,en
+Canonical: http://127.0.0.1:3000/security.txt
