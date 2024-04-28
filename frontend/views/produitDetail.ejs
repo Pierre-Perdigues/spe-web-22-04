@@ -14,10 +14,10 @@
         </div>
         <% if (isAuthenticated) { %>
             <div class="container my-5" id="product-detail">
-                <button type="button" class="btn btn-primary" id="openEditModal">
+                <button type="button" class="btn btn-primary" id="openEditModal" data-target="editProductModal">
                     Modifier
                 </button>
-                <button type="supprimer" class="btn btn-danger" id="openSupprModal">
+                <button type="supprimer" class="btn btn-danger" id="openSupprModal" data-target="suprProductModal">
                     Supprimer
                 </button>
             </div>
@@ -37,140 +37,133 @@
     </body>
 
     <script nonce="<%= nonce %>">
-        // Récupérer l'ID du produit de l'URL, par exemple en utilisant window.location.pathname
-        document.addEventListener('DOMContentLoaded', () => {
-            fetch(`http://127.0.0.1:5000/produits/${'<%= id %>'}`)
-                .then(response => response.json())
-                .then(data => {
-                    const produit = data.produit;
+        // Fonction pure pour générer le HTML pour les images du produit
+const generateImagesHtml = produit => produit.chemin_images && produit.chemin_images.length > 0 ?
+    produit.chemin_images.map(image => `
+        <div class="col-md-4 mb-3">
+            <img src="http://127.0.0.1:5000/${image}" class="img-fluid" alt="${produit.libelle}">
+        </div>
+    `).join('') :
+    `<div class="col-md-4 mb-3">
+        <img src="http://127.0.0.1:5000/public/image/default-plate.jpg" class="img-fluid" alt="${produit.libelle}">
+    </div>`;
 
-                    // Générer le HTML pour les images
-                    let imagesHtml = '';
-                    if (produit.chemin_images && produit.chemin_images.length > 0) {
-                        imagesHtml = produit.chemin_images.map(image =>
-                            `<div class="col-md-4 mb-3">
-                        <img src="http://127.0.0.1:5000/${image}" class="img-fluid" alt="${produit.libelle}">
-                    </div>`
-                        ).join('');
-                    }
-                    else {
-                        imagesHtml =
-                            `<div class="col-md-4 mb-3">
-                            <img src="http://127.0.0.1:5000/public/image/default-plate.jpg" class="img-fluid" alt="${produit.libelle}">
-                            </div>`;
-                    }
-
-                    // Mise à jour du DOM avec les détails du produit et les images
-                    const coucou = false
-                    document.getElementById('product-detail').innerHTML = `
-                <div class="row">
-                    ${imagesHtml}
-                    <div class="col-md-6">
-                        <h1>${produit.libelle}</h1>
-                        <p>${produit.description}</p>
-                        <p class="font-weight-bold">Prix: ${produit.prix}€</p>
-                        <p>Catégorie: ${produit.categorie}</p>
-                    </div>
-                </div>
-            `;
-            <% if (isAuthenticated) { %>
-                        document.getElementById('editProductModal').innerHTML = `
-                    <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editProductModalLabel">Modifier Produit</h5>
-                        <button type="button" class="close closeEditModal" >
-                            <span aria-hidden="true">X</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="/produits-detail/${'<%= id %>'}" method="post" id="editProductForm">
-                            <div class="form-group">
-                                <label for="productName">Nom du produit</label>
-                                <input type="text" class="form-control" id="productName" name="libelle" value="${produit.libelle}">
-                            </div>
-                            <div class="form-group">
-                                <label for="productDescription">Description</label>
-                                <textarea class="form-control" id="productDescription" name="description" rows="3">${produit.description}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="productPrice">Prix (€)</label>
-                                <input type="number" class="form-control" id="productPrice" name="prix" value="${produit.prix}">
-                            </div>
-                            <div class="form-group">
-                                <label for="productCategory">Catégorie</label>
-                                <input type="text" class="form-control" id="productCategory" name="categorie" value="${produit.categorie}">
-                            </div>
-                            <input type="hidden" id="_csrf" name="_csrf" value="<%= csrfTokenM %>">
-                            <div class="modal-footer">
-                                
-                        <button type="button" class="btn btn-secondary closeEditModal" id="">Fermer</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer
-                            modifications</button>
-                    </div>
-                        </form>
-                    </div>
-                    
-                </div>
+// Fonction pour mettre à jour le DOM avec les détails du produit
+const updateProductDetails = (produit, isAuthenticated) => {
+    const imagesHtml = generateImagesHtml(produit);
+    document.getElementById('product-detail').innerHTML = `
+        <div class="row">
+            ${imagesHtml}
+            <div class="col-md-6">
+                <h1>${produit.libelle}</h1>
+                <p>${produit.description}</p>
+                <p class="font-weight-bold">Prix: ${produit.prix}€</p>
+                <p>Catégorie: ${produit.categorie}</p>
             </div>
-                    `;
+        </div>
+    `;
+    if (isAuthenticated) {
+        setupModalContent(produit);
+    }
+};
 
-                        document.getElementById('suprProductModal').innerHTML = `
-                    <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="suprProductModalLabel">Supprimer Produit</h5>
-                        <button type="button" class="close closeSupprModal" >
-                            <span aria-hidden="true">X</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="/produits-detail/${'<%= id %>'}" method="POST" id="suprProductForm">
-                            <input type="hidden" id="_csrf" name="_csrf" value="<%= csrfTokenD %>">
-                            <input type="hidden" id="del" name="del" value="del">
-                            <button type="button" class="btn btn-secondary closeSupprModal">Fermer</button>
-                            <button type="submit" class="btn btn-primary">Supprimer produit</button>
-                        </form>
-                    </div>
-                    
-                </div>
+// Fonction pour initialiser le contenu des modaux
+const setupModalContent = produit => {
+    document.getElementById('editProductModal').innerHTML = editModalHtml(produit);
+    document.getElementById('suprProductModal').innerHTML = deleteModalHtml(produit);
+    attachModalEventListeners();
+};
+
+// Fonction pour créer le HTML du modal d'édition
+const editModalHtml = produit => `
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProductModalLabel">Modifier Produit</h5>
+                <button type="button" class="close closeEditModal"><span aria-hidden="true">X</span></button>
             </div>
-                    `
-                            <% } %>
-                }).then(() => {
-                    document.querySelectorAll('.closeEditModal').forEach(button => {
-                        button.addEventListener('click', function () {
-                            const modal = document.getElementById('editProductModal');
-                                    modal.style.display = 'none';
-                                    modal.classList.remove('show');  // Retire Bootstrap 'show' class
-                        });
-                    });
+            <div class="modal-body">
+                <form action="/produits-detail/${produit.id}" method="post" id="editProductForm">
+                    <div class="form-group">
+                        <label for="productName">Nom du produit</label>
+                        <input type="text" class="form-control" id="productName" name="libelle" value="${produit.libelle}">
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Description</label>
+                        <textarea class="form-control" id="productDescription" name="description" rows="3">${produit.description}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Prix (€)</label>
+                        <input type="number" class="form-control" id="productPrice" name="prix" value="${produit.prix}">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Catégorie</label>
+                        <input type="text" class="form-control" id="productCategory" name="categorie" value="${produit.categorie}">
+                    </div>
+                    <input type="hidden" id="_csrf" name="_csrf" value="<%= csrfTokenM %>">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary closeEditModal">Fermer</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer modifications</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+`;
 
-                    document.getElementById('openEditModal').addEventListener('click', () => {
-                        const modal = document.getElementById('editProductModal');
-                        modal.style.display = 'block';
-                        modal.classList.add('show');  // Ajoute Bootstrap 'show' class
-                    })
-                    
-                    document.querySelectorAll('.closeSupprModal').forEach(button => {
-                        button.addEventListener('click', function () {
-                            const modal = document.getElementById('suprProductModal');
+// Fonction pour créer le HTML du modal de suppression
+const deleteModalHtml = produit => `
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="suprProductModalLabel">Supprimer Produit</h5>
+                <button type="button" class="close closeSupprModal"><span aria-hidden="true">X</span></button>
+            </div>
+            <div class="modal-body">
+                <form action="/produits-detail/${produit.id}" method="POST" id="suprProductForm">
+                    <input type="hidden" id="_csrf" name="_csrf" value="<%= csrfTokenD %>">
+                    <input type="hidden" id="del" name="del" value="del">
+                    <button type="button" class="btn btn-secondary closeSupprModal">Fermer</button>
+                    <button type="submit" class="btn btn-primary">Supprimer produit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+`;
+
+// Fonction pour attacher les écouteurs d'événements aux modaux
+const attachModalEventListeners = () => {
+    document.querySelectorAll('.closeEditModal, .closeSupprModal').forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.modal');
             modal.style.display = 'none';
-            modal.classList.remove('show');  // Retire Bootstrap 'show' class
-                        });
-                    });
-
-                    document.getElementById('openSupprModal').addEventListener('click', () => {
-                        const modal = document.getElementById('suprProductModal');
-                        modal.style.display = 'block';
-                        modal.classList.add('show');  // Ajoute Bootstrap 'show' class
-                    })
-
-                            })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+            modal.classList.remove('show');
         });
+    });
+    document.querySelectorAll('#openEditModal, #openSupprModal').forEach(button => {
+        button.addEventListener('click', () => {
+            const modalId = button.getAttribute('data-target');
+            console.log(modalId);
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'block';
+            modal.classList.add('show');
+        });
+    });
+};
+
+// Initialisation au chargement du document
+document.addEventListener('DOMContentLoaded', () => {
+    const id = '<%= id %>'; // Récupérer l'ID du produit depuis l'URL
+    fetch(`http://127.0.0.1:5000/produits/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data || !data.produit) throw new Error('Produit non trouvé');
+            const isAuthenticated = '<%= isAuthenticated %>'; // Simuler l'authentification
+            updateProductDetails(data.produit, isAuthenticated);
+        })
+        .catch(error => console.error('Error:', error));
+});
+
 
     </script>
     </body>

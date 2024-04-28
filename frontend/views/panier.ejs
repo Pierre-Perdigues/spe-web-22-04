@@ -20,11 +20,9 @@
         </div>
 
         <script nonce="<%= nonce %>">
-            document.addEventListener('DOMContentLoaded', afficherPanier);
-
-            function afficherPanier() {
-                const panier = JSON.parse(sessionStorage.getItem('panier') || '{}');
-                const panierContent = Object.entries(panier).map(([id, produit]) => `
+            // Fonction pure pour générer le HTML pour le contenu du panier
+            const generatePanierContent = (panier) => {
+                return Object.entries(panier).map(([id, produit]) => `
         <div class="card mb-3" id="produit-${id}">
             <div class="card-body">
                 <h5 class="card-title">${produit.nom}</h5>
@@ -33,31 +31,51 @@
             </div>
         </div>
     `).join('');
+            };
 
+            // Fonction pour mettre à jour le DOM avec le contenu du panier
+            const updatePanierContent = (panierContent) => {
                 document.getElementById('panierContent').innerHTML = panierContent;
+                attachEventListenersToButtons();
+            };
 
-                // Attacher les écouteurs d'événements pour les boutons retirer
+            // Fonction pour attacher les écouteurs d'événements aux boutons de retrait
+            const attachEventListenersToButtons = () => {
                 document.querySelectorAll('.retirer-btn').forEach(button => {
-                    button.addEventListener('click', function () {
-                        retirerDuPanier(this.getAttribute('data-id'));
-                    });
+                    button.addEventListener('click', () => retirerDuPanier(button.getAttribute('data-id')));
                 });
-            }
+            };
 
-
-            function retirerDuPanier(id) {
-                const panier = JSON.parse(sessionStorage.getItem('panier') || '{}');
+            // Fonction pour retirer un produit du panier
+            const retirerDuPanier = (id) => {
+                const panier = getPanier();
                 delete panier[id];
                 sessionStorage.setItem('panier', JSON.stringify(panier));
-                document.getElementById(`produit-${id}`).remove(); // Retire l'élément du DOM
-            }
+                document.getElementById(`produit-${id}`).remove();
+            };
 
+            // Fonction pour récupérer le panier depuis le sessionStorage
+            const getPanier = () => {
+                return JSON.parse(sessionStorage.getItem('panier') || '{}');
+            };
+
+            // Fonction pour afficher le panier
+            const afficherPanier = () => {
+                const panier = getPanier();
+                const panierContent = generatePanierContent(panier);
+                updatePanierContent(panierContent);
+            };
+
+            // Fonction pour vider le panier
+            const viderPanier = () => {
+                sessionStorage.removeItem('panier');
+                updatePanierContent('<p>Le panier a été vidé.</p>');
+            };
+
+            // Attachement des écouteurs d'événements
+            document.addEventListener('DOMContentLoaded', afficherPanier);
             document.getElementById('viderPanier').addEventListener('click', viderPanier);
 
-            function viderPanier() {
-                sessionStorage.removeItem('panier');
-                document.getElementById('panierContent').innerHTML = '<p>Le panier a été vidé.</p>';
-            }
         </script>
 </body>
 
