@@ -48,44 +48,6 @@
                 </div>
             </div>
         </div>
-
-        <script nonce="<%= nonce %>">
-
-
-            // document.getElementById('loginForm').addEventListener('submit', function (event) {
-            //     event.preventDefault();
-            //     const username = document.getElementById('username').value;
-            //     const password = document.getElementById('password').value;
-
-            //     fetch('http://127.0.0.1:5000/users', {
-            //         method: 'POST',
-            // headers: {
-            //     'Content-Type': 'application/json',
-            //     'CSRF-Token': document.getElementById('monCsrf').value
-            // },
-            // body: JSON.stringify({ username, password, monCsrf: document.getElementById('monCsrf').value })
-            //     })
-            // .then(response => {
-            //     if (response.status === 200) {
-            //         return response.json();
-            //     } else {
-            //         throw new Error('Inscription échouée');
-            //     }
-            // })
-            //     .then(data => {
-            //         console.log(data);
-            //         if (data) {
-            //             window.location.href = '/dashboard'; // Redirigez l'utilisateur sur son dashboard
-            //         } else {
-            //             alert('Échec de la connexion.');
-            //         }
-            //     })
-            //     .catch(error => {
-            //         console.error('Error:', error);
-            //         alert('Erreur lors de la connexion.');
-            //     });
-            // });
-        </script>
     </body>
 
 </html>

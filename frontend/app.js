@@ -1,12 +1,11 @@
 const express = require('express');
 const app = express();
-const { expressCspHeader, INLINE, NONE, SELF, STRICT_DYNAMIC, NONCE } = require('express-csp-header');
+const { expressCspHeader, INLINE, NONE, SELF, NONCE } = require('express-csp-header');
 const csrf = require('csrf');
 const tokens = new csrf()
 const secretCsrf = tokens.secretSync()
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-app.use(express.urlencoded({ extended: true }));
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 const crypto = require('crypto');
@@ -14,6 +13,7 @@ const { Blob } = require('buffer');
 const fs = require('fs');
 const path = require('path');
 const xss = require('xss');
+app.use(express.urlencoded({ extended: true }));
 
 const session = require('express-session');
 
@@ -106,9 +106,6 @@ app.use(expressCspHeader({
         'report-uri': ['/csp-violation-report-app']
     }
 }));
-
-
-
 
 app.use((req, res, next) => {
     res.locals.nonce = req.nonce; // Stocker le nonce dans res.locals pour y accéder dans les vues
@@ -272,7 +269,6 @@ app.get('/logout', (req, res) => {
         res.redirect('/connexion');
     });
 });
-
 
 app.post('/ajout-produit', upload.array('images', 12), ensureAuthenticated, (req, res, next) => {
     if (!tokens.verify(secretCsrf, req.body._csrf)) {
