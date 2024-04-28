@@ -3,6 +3,7 @@ const {creationDb} = require('./db/creationDb');
 const userRoutes = require('./routes/userRoutes');
 const path = require('path');
 const produitRoutes = require('./routes/produitRoutes');
+const statRoutes = require('./routes/statRoutes');
 const cors = require('cors');
 const app = express();
 
@@ -19,6 +20,8 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Configuration des CORS
 const allowedOrigins = ['http://127.0.0.1:3000', 'http://127.0.0.1:5000/'];
+
+app.use('/stats',cors({origin: '*'}), statRoutes);
 
 app.use(cors({
     origin: function (origin, callback) {
@@ -44,8 +47,7 @@ app.use('/users', userRoutes);
 app.use('/produits', produitRoutes);
 
 // Utiliser les routes pour les stats
-app.get("/stats", (req, res) => {
-});
+
 
 // Là ou tourne le serveur
 app.listen(port, () => {

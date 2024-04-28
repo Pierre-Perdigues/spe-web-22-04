@@ -18,7 +18,19 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage });
+const imageFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extension = path.extname(file.originalname).toLowerCase();
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && allowedTypes.test(extension)) {
+        cb(null, true);
+    } else {
+        cb('Seuls les fichiers images sont autorisés!', false);
+    }
+};
+
+const upload = multer({ storage: storage, fileFilter: imageFilter });
 
 // Ajouter des routes spécifiques
 router.get('/', (req, res) => {
@@ -36,10 +48,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', upload.array('images'), (req, res) => {
-    console.log("hellodzdzd");
     const { nom, description, prix, categorie } = req.body;
-    console.log(req.body);
-    console.log(req.files);
 
     // Insertion du produit dans la table produits
     db.run(`INSERT INTO produits (libelle, description, prix, categorie) VALUES (?, ?, ?, ?)`, [nom, description, prix, categorie], function(err) {
@@ -59,7 +68,7 @@ router.post('/', upload.array('images'), (req, res) => {
             });
         });
 
-        res.status(201).json({ message: 'Produit ajouté avec succès', data: req.body });
+        res.status(201).json({ message: 'Produit ajouté avec succès'});
     });
 });
 
@@ -89,11 +98,35 @@ router.get('/:id', (req, res) => {
 });
 
 
-router.put('/:id', (req, res) => {
+router.put('/', (req, res) => {
+    const {libelle, prix, categorie, description, id} = req.body
+    const sql = `
+        UPDATE produits
+        SET libelle = ?,
+            description = ?,
+            prix = ?,
+            categorie = ?
+        WHERE id = ?`;
 
+    db.run(sql, [libelle, description, prix, categorie, id], function(err) {
+        if (err) {
+            console.error('Error executing SQL', err);
+        } else {
+            console.log(`Row(s) updated: ${this.changes}`);
+        }
+    });
+    res.status(201).send()
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/', (req, res) => {
+    const sql = `DELETE FROM produits WHERE id = ?`;
+    db.run(sql, [req.body.id], function(err) {
+        if (err) {
+            return console.error('Error executing SQL', err);
+        }
+        console.log(`Row(s) deleted: ${this.changes}`);
+    });
+    res.status(201).send()
 });
 
 module.exports = router;

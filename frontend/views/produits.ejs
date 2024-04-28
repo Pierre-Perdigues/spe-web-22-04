@@ -2,7 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produits</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"
+        nonce="<%= nonce %>">
 </head>
 <%- include('partials/header') %>
 
@@ -13,85 +14,95 @@
             </div>
             <input type="text" id="searchInput" placeholder="Recherche produits">
             <% if (isAuthenticated) { %>
-            <div class="col-md-12 text-center py-5 p">
-                <button type="button" class="btn btn-primary" onclick="window.location.href = '/ajout-produit'">Nouveau produit</button>
-            </div>
-            <% } %>
+                <div class="col-md-12 text-center py-5 p">
+                    <button type="button" class="btn btn-outline-secondary" nonce="<%= nonce %>"><a
+                            href="/ajout-produit">Nouveau produit</a></button>
+                </div>
+                <% } %>
         </div>
 
         <div id="produitsConent" class="container mt-3">
             <div id="produits" class="row"></div>
         </div>
     </body>
-    <script>
-        function ajoutPanier(id) {
-            let panier = sessionStorage.getItem('panier');
-            panier = panier ? JSON.parse(panier) : {};
-
-            if (panier[id]) {
-                panier[id]++;
-            } else {
-                panier[id] = 1;
-            }
-
-            sessionStorage.setItem('panier', JSON.stringify(panier));
-        }
-
-        function afficherPanier() {
-            let panier = sessionStorage.getItem('panier');
-            panier = panier ? JSON.parse(panier) : {};
-            console.log("Contenu du panier :", panier);
-        }
-
-
-
+    <script nonce="<%= nonce %>">
         document.addEventListener('DOMContentLoaded', () => {
-            return fetch('http://127.0.0.1:5000/produits')
+            let produits = []; // Stocke les produits chargés
+    
+            fetch('http://127.0.0.1:5000/produits')
                 .then(response => response.json())
                 .then(result => {
-                    console.log(result);
-                    // Verrifie que je recois bien un tableau
                     if (!Array.isArray(result.data)) {
                         throw new TypeError('Les données ne sont pas un tableau');
                     }
-                    return result.data.map(prdt => ({
+                    produits = result.data.map(prdt => ({
                         id: prdt.id,
                         nom: prdt.libelle,
                         description: prdt.description,
                         prix: prdt.prix,
-                        cate: prdt.categorie,
+                        categorie: prdt.categorie,
                     }));
+                    afficherProduits(produits);
                 })
-                .then(prdts => {
-                    const input = document.getElementById('searchInput');
-                    const resultsContainer = document.getElementById('produits');
-                    // A chaque entré de touche on filtre et on retourne notre constante fait en html avec les données
-                    input.addEventListener('input', function (e) {
-                        const filteredProducts = prdts.filter(prdt =>
-                            prdt.nom.toLowerCase().includes(e.target.value.toLowerCase())
-                        );
-                        const prdtHTML = filteredProducts.map(prdt => (
-                            `<div class="col-md-4 mb-3">
-                                <div class="card h-100">
-                                    <!-- <img src="${prdt.image || 'path/to/default-image.jpg'}" class="card-img-top" alt="${prdt.nom}"> -->
-                                    <div class="card-body">
-                                        <h5 class="card-title">${prdt.nom}</h5>
-                                        <p class="card-text">${prdt.description}</p>
-                                        <p class="card-text">Prix: ${prdt.prix}€</p>
-                                        <p class="card-text">Catégorie: ${prdt.categorie}</p>
-                                    </div>
-                                    <button type="button" class="btn" onclick="window.location.href = '/produits-detail/${prdt.id}'">Voir produits</button>
-                                    <button type="button" class="btn" onclick="ajoutPanier(${prdt.id})">Ajout Panier</button>
-                                </div>
-                            </div>`
-                        ));
-                        resultsContainer.innerHTML = prdtHTML.join('');
+                .catch(error => console.error('Error fetching data:', error));
+    
+            function afficherProduits(prdts) {
+                const input = document.getElementById('searchInput');
+                const resultsContainer = document.getElementById('produits');
+                const filteredProducts = prdts.filter(prdt => prdt.nom.toLowerCase().includes(input.value.toLowerCase()));
+    
+                const prdtHTML = filteredProducts.map(prdt => `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">${prdt.nom}</h5>
+                                <p class="card-text">${prdt.description}</p>
+                                <p class="card-text">Prix: ${prdt.prix}€</p>
+                                <p class="card-text">Catégorie: ${prdt.categorie}</p>
+                                <button type="button" class="btn view-btn" data-id="${prdt.id}">Voir produits</button>
+                                <button type="button" class="btn add-btn" data-id="${prdt.id}" data-nom="${prdt.nom}">Ajout Panier</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                resultsContainer.innerHTML = prdtHTML;
+    
+                attachEventListeners();
+            }
+    
+            function attachEventListeners() {
+                document.querySelectorAll('.add-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        ajoutPanier(this.getAttribute('data-id'), this.getAttribute('data-nom'));
                     });
-
-                    // Initialiser l'affichage avec toutes les données
-                    input.dispatchEvent(new Event('input'));
                 });
+                document.querySelectorAll('.view-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        window.location.href = `/produits-detail/${this.getAttribute('data-id')}`;
+                    });
+                });
+            }
+    
+            // Gestionnaire de l'événement input pour la recherche
+            document.getElementById('searchInput').addEventListener('input', () => {
+                afficherProduits(produits); // Rafraîchit l'affichage en fonction du texte de recherche
+            });
         });
+    
+        function ajoutPanier(id, nom) {
+            let panier = sessionStorage.getItem('panier');
+            panier = panier ? JSON.parse(panier) : {};
+            if (panier[id]) {
+                panier[id].quantite++;
+            } else {
+                panier[id] = {
+                    quantite: 1,
+                    nom: nom
+                };
+            }
+            sessionStorage.setItem('panier', JSON.stringify(panier));
+        }
     </script>
+    
 
     </html>

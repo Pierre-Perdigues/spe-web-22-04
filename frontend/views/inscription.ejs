@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" nonce="<%= nonce %>">
 </head>
 <%- include('partials/header') %>
 <body class="bg-light">
@@ -36,36 +36,7 @@
         </div>
     </div>
 
-    <script>
-        // document.getElementById('registerForm').addEventListener('submit', function (event) {
-        //     event.preventDefault();
-        //     const username = document.getElementById('username').value;
-        //     const password = document.getElementById('password').value;
 
-        //     fetch('http://127.0.0.1:5000/users/new', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ username, password })
-        //     })
-        //     .then(response => {
-        //         if (response.ok) {
-        //             return response.json(); 
-        //         } else {
-        //             throw new Error('Inscription échouée');
-        //         }
-        //     })
-        //     .then(data => {
-        //         window.location.href = '/connexion';  // Redirection vers la page de connexion
-        //     })
-        //     .catch(error => {
-        //         console.error('Error:', error);
-        //         document.getElementById('errorMessage').style.display = 'block';  // Affiche le message d'erreur
-        //         document.getElementById('errorMessage').textContent = 'Inscription échouée.';  // Message d'erreur
-        //     });
-        // });
-    </script>
 </body>
 
 </html>
