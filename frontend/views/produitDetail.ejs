@@ -154,7 +154,7 @@ const attachModalEventListeners = () => {
 // Initialisation au chargement du document
 document.addEventListener('DOMContentLoaded', () => {
     const id = '<%= id %>'; // Récupérer l'ID du produit depuis l'URL
-    fetch(`http://127.0.0.1:5000/produits/${id}`)
+    fetch(`http://localhost:5000/produits/${id}`)
         .then(response => response.json())
         .then(data => {
             if (!data || !data.produit) throw new Error('Produit non trouvé');

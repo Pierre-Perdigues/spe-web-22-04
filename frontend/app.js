@@ -79,7 +79,7 @@ app.use(nonceMiddleware);
 app.use(expressCspHeader({
     directives: {
         'default-src': [SELF],
-        'img-src': [SELF, 'http://127.0.0.1:5000/public/image/', 'http://127.0.0.1:5000/images/'],
+        'img-src': [SELF, 'http://127.0.0.1:5000/public/image/', 'http://127.0.0.1:5000/images/', 'http://localhost:5000/images/','http://localhost:5000/public/image/'],
         'script-src': [
             SELF,
             'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js', ,
@@ -98,7 +98,7 @@ app.use(expressCspHeader({
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/webfonts/',
             'https://fonts.gstatic.com/'
         ],
-        'connect-src': [SELF, 'http://127.0.0.1:5000/'],
+        'connect-src': [SELF, 'http://127.0.0.1:5000/', 'http://localhost:5000/'],
         'media-src': [NONE],
         'object-src': [NONE],
         'frame-src': [NONE],
