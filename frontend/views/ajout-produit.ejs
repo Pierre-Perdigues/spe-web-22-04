@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un produit</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" nonce="<%= nonce %>">
+</head>
+<%- include('partials/header') %>
+
+    <body>
+        <div class="container mt-5">
+            <h2 class="mb-4">Ajouter un nouveau produit</h2>
+            <form actoin="ajout-produit" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="nom">Nom du produit</label>
+                    <input type="text" class="form-control" id="nom" name="nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="images">Images du produit</label>
+                    <input type="file" class="form-control-file" id="images" name="images"
+                        accept=".jpg, .jpeg, .png, .webp" multiple>
+                </div>
+                <div class="form-group">
+                    <label for="prix">Prix (€)</label>
+                    <input type="number" class="form-control" id="prix" name="prix" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="categorie">Catégorie</label>
+                    <input type="text" class="form-control" id="categorie" name="categorie">
+                </div>
+                <input type="hidden" id="_csrf" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-primary">Soumettre</button>
+            </form>
+        </div>
+    </body>
+
+</html>

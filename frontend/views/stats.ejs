@@ -1,0 +1,39 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" nonce="<%= nonce %>">
+</head>
+<%- include('partials/header') %>
+
+<body>
+    <div class="container">
+        <h1 class="text-center my-5">Statistiques</h1>
+        <div id="stats" class="row text-center"></div>
+    </div>
+</body>
+<script nonce="<%= nonce %>">
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('http://127.0.0.1:5000/stats')
+            .then(response => response.json())
+            .then(result => {
+                if (!Array.isArray(result.data)) {
+                    throw new TypeError('Les données ne sont pas un tableau');
+                }
+                const statsHtml = result.data.map(stat => `
+                    <div class="col-md-4 mb-4">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">Catégorie : ${stat.nom}</div>
+                            <div class="card-body">
+                                <h5 class="card-title">Nombre de produits : ${stat.compte}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('stats').innerHTML = statsHtml;
+            })
+            .catch(error => console.error('Error:', error));
+    });
+</script>
+
+</html>

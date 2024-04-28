@@ -5,3 +5,9 @@ frontend/node_modules/
 # Fichiers de base de données SQLite
 *.sqlite
 *.sqlite3
+
+#Fichier images bdd
+backend/images/
+
+#fichier de log
+*.log

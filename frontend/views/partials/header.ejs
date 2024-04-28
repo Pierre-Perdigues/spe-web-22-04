@@ -1,0 +1,26 @@
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" > -->
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-dark">
+        <a class="navbar-brand text-white" href="/" >TP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <% if (!isAuthenticated) { %>
+                    <a class="nav-item nav-link text-white" href="/inscription">Inscription</a>
+                    <a class="nav-item nav-link text-white" href="/connexion">Connexion</a>
+                <% } %>
+                <% if (isAuthenticated) { %>
+                        <a class="nav-item nav-link text-white" href="/logout">Déconnexion</a>
+                        <a class="nav-item nav-link text-white" href="/dashboard">Mon dashboard</a>
+                    <% } %>
+            <a class=" nav-item nav-link text-white " href="/produits">Produits</a>
+            <a class="nav-item nav-link text-white" href="/statistiques">Statistiques</a>
+            <a class="nav-item nav-link text-white" href="/panier">Panier</a>
+          </div>
+        </div>
+      </nav>
+    
+</header>

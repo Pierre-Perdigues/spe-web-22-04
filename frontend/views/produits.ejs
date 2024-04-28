@@ -1,0 +1,125 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produits</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"
+        nonce="<%= nonce %>">
+</head>
+<%- include('partials/header') %>
+
+    <body>
+        <div class="row justify-content-center">
+            <div class="col-md-12 text-center py-5 p">
+                <h1>Nos produits</h1>
+            </div>
+            <input type="text" id="searchInput" placeholder="Recherche produits">
+            <% if (isAuthenticated) { %>
+                <div class="col-md-12 text-center py-5 p">
+                    <button type="button" class="btn btn-outline-secondary" nonce="<%= nonce %>"><a
+                            href="/ajout-produit">Nouveau produit</a></button>
+                </div>
+                <% } %>
+        </div>
+
+        <div id="produitsConent" class="container mt-3">
+            <div id="produits" class="row"></div>
+        </div>
+    </body>
+    <script nonce="<%= nonce %>">
+        function escapeHTML(text) {
+            if (typeof text !== 'string') {
+                console.error('escapeHTML error: expected a string but received', text);
+                return text; // ou retourner une chaîne vide pour éviter d'autres erreurs, selon le cas d'usage
+            }
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&"<>''"]/g, function (m) { return map[m]; });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let produits = []; // Stocke les produits chargés
+
+            fetch('http://127.0.0.1:5000/produits')
+                .then(response => response.json())
+                .then(result => {
+                    if (!Array.isArray(result.data)) {
+                        throw new TypeError('Les données ne sont pas un tableau');
+                    }
+                    produits = result.data.map(prdt => ({
+                        id: prdt.id,
+                        nom: prdt.libelle,
+                        description: prdt.description,
+                        prix: prdt.prix,
+                        categorie: prdt.categorie,
+                    }));
+                    afficherProduits(produits);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+
+            function afficherProduits(prdts) {
+                const input = document.getElementById('searchInput');
+                const resultsContainer = document.getElementById('produits');
+                const filteredProducts = prdts.filter(prdt => prdt.nom.toLowerCase().includes(input.value.toLowerCase()));
+
+                const prdtHTML = filteredProducts.map(prdt => `
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">${escapeHTML(prdt.nom)}</h5>
+                    <p class="card-text">${escapeHTML(prdt.description)}</p>
+                    <p class="card-text">Prix: ${escapeHTML(prdt.prix.toString())}€</p>
+                    <p class="card-text">Catégorie: ${escapeHTML(prdt.categorie)}</p>
+                    <button type="button" class="btn view-btn" data-id="${prdt.id}">Voir produits</button>
+                    <button type="button" class="btn add-btn" data-id="${prdt.id}" data-nom="${escapeHTML(prdt.nom)}">Ajout Panier</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+                resultsContainer.innerHTML = prdtHTML;
+
+                attachEventListeners();
+            }
+
+            function attachEventListeners() {
+                document.querySelectorAll('.add-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        ajoutPanier(this.getAttribute('data-id'), this.getAttribute('data-nom'));
+                    });
+                });
+                document.querySelectorAll('.view-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        window.location.href = `/produits-detail/${this.getAttribute('data-id')}`;
+                    });
+                });
+            }
+
+            // Gestionnaire de l'événement input pour la recherche
+            document.getElementById('searchInput').addEventListener('input', () => {
+                afficherProduits(produits); // Rafraîchit l'affichage en fonction du texte de recherche
+            });
+        });
+
+        function ajoutPanier(id, nom) {
+            let panier = sessionStorage.getItem('panier');
+            panier = panier ? JSON.parse(panier) : {};
+            if (panier[id]) {
+                panier[id].quantite++;
+            } else {
+                panier[id] = {
+                    quantite: 1,
+                    nom: nom
+                };
+            }
+            sessionStorage.setItem('panier', JSON.stringify(panier));
+        }
+    </script>
+
+
+    </html>

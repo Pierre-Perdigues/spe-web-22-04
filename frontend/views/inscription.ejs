@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" nonce="<%= nonce %>">
 </head>
-
+<%- include('partials/header') %>
 <body class="bg-light">
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -15,16 +15,24 @@
                 <div class="card">
                     <h5 class="card-header">Inscription</h5>
                     <div class="card-body">
-                        <form id="registerForm">
+                        <form action="/inscription" method="post" id="registerForm">
                             <div class="form-group">
                                 <label for="username">Nom d'utilisateur:</label>
                                 <input type="text" id="username" name="username" class="form-control" required>
                             </div>
                             <div class="form-group">
                                 <label for="password">Mot de passe:</label>
-                                <input type="password" id="password" name="password" class="form-control" required>
+                                <input type="password" class="form-control" id="password" name="password" required>
                             </div>
-                            <button type="submit" class="btn btn-primary">S'inscrire</button>
+                            <ul id="passwordCriteria" class="list-group">
+                                <li class="list-group-item">Au moins 8 caractères</li>
+                                <li class="list-group-item">Contient une majuscule</li>
+                                <li class="list-group-item">Contient une minuscule</li>
+                                <li class="list-group-item">Contient un chiffre</li>
+                                <li class="list-group-item">Contient un caractère spécial (ex: @, #, $...)</li>
+                            </ul>
+                            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>S'inscrire</button>
+                            <input type="hidden" id="_csrf" name="_csrf" value="<%= csrfToken %>">
                             <div id="errorMessage" class="alert alert-danger mt-2" style="display: none;"></div>
                         </form>
                     </div>
@@ -33,36 +41,32 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('registerForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
 
-            fetch('http://127.0.0.1:5000/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password })
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();  // Si la requête est réussie, on parse le JSON
-                } else {
-                    throw new Error('Inscription échouée');  // Si échec, on lance une exception
-                }
-            })
-            .then(data => {
-                window.location.href = 'http://127.0.0.1:3000/connexion';  // Redirection vers la page de connexion
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('errorMessage').style.display = 'block';  // Affiche le message d'erreur
-                document.getElementById('errorMessage').textContent = 'Inscription échouée. Veuillez réessayer.';  // Message d'erreur
-            });
-        });
-    </script>
 </body>
+<script nonce="<%= nonce %>">
+    const passwordInput = document.getElementById('password');
+        const submitBtn = document.getElementById('submitBtn');
+
+        passwordInput.addEventListener('keyup', function() {
+            const value = this.value;
+            const criteria = [
+                value.length >= 8,
+                /[A-Z]/.test(value),
+                /[a-z]/.test(value),
+                /[0-9]/.test(value),
+                /[\@\#\$\%\^\&\*\(\)\_\+\!\?\/]/.test(value)
+
+            ];
+            const listItems = document.querySelectorAll('#passwordCriteria li');
+            let allCriteriaMet = true;
+            criteria.forEach((criterion, index) => {
+                listItems[index].className = criterion ? 'list-group-item list-group-item-success' : 'list-group-item';
+                if (!criterion) allCriteriaMet = false;
+            });
+
+            // Enable or disable the submit button based on whether all criteria are met
+            submitBtn.disabled = !allCriteriaMet;
+        });
+</script>
 
 </html>

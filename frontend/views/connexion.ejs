@@ -5,63 +5,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" nonce="<%= nonce %>">
 </head>
+<%- include('partials/header') %>
 
-<body class="bg-light">
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <div class="card">
-                    <h5 class="card-header">Connexion</h5>
-                    <div class="card-body">
-                        <form id="loginForm">
-                            <div class="form-group">
-                                <label for="username">Nom d'utilisateur:</label>
-                                <input type="text" id="username" name="username" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Mot de passe:</label>
-                                <input type="password" id="password" name="password" class="form-control" required placeholder="Entrez votre mot de passe">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Se connecter</button>
-                        </form>
+    <body class="bg-light">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <div class="card">
+                        <h5 class="card-header">Connexion</h5>
+                        <div class="card-body">
+                            <!-- Ajouter ce bloc dans votre <body>, au-dessus du formulaire -->
+                            <% if (typeof error !=='undefined' ) { %>
+                                <div class="alert alert-danger" role="alert">
+                                    <%= error %>
+                                </div>
+                                <% } %>
+
+                                    <!-- Votre formulaire ici -->
+
+                                    <form id="loginForm" action="/connexion" method="POST">
+                                        <div class="form-group">
+                                            <label for="username">Nom d'utilisateur:</label>
+                                            <input type="text" id="username" name="username" class="form-control"
+                                                required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="password">Mot de passe:</label>
+                                            <input type="password" id="password" name="password" class="form-control"
+                                                required placeholder="Entrez votre mot de passe">
+                                        </div>
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">Se connecter</button>
+                                    </form>
+                        </div>
                     </div>
+                    <p class="text-center mt-2">
+                        Pas de compte ? <a href="/inscription">Inscrivez-vous</a>
+                    </p>
                 </div>
-                <p class="text-center mt-2">
-                    Pas de compte ? <a href="http://127.0.0.1:3000/inscription">Inscrivez-vous</a>
-                </p>
             </div>
         </div>
-    </div>
 
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        <script nonce="<%= nonce %>">
 
-            fetch('http://127.0.0.1:5000/users', { // Assurez-vous que l'URL est correcte
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = '/accueil.html'; // Redirigez l'utilisateur où vous le souhaitez après la connexion
-                } else {
-                    alert('Échec de la connexion. Veuillez vérifier vos informations.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Erreur lors de la connexion. Veuillez réessayer plus tard.');
-            });
-        });
-    </script>
-</body>
+
+            // document.getElementById('loginForm').addEventListener('submit', function (event) {
+            //     event.preventDefault();
+            //     const username = document.getElementById('username').value;
+            //     const password = document.getElementById('password').value;
+
+            //     fetch('http://127.0.0.1:5000/users', {
+            //         method: 'POST',
+            // headers: {
+            //     'Content-Type': 'application/json',
+            //     'CSRF-Token': document.getElementById('monCsrf').value
+            // },
+            // body: JSON.stringify({ username, password, monCsrf: document.getElementById('monCsrf').value })
+            //     })
+            // .then(response => {
+            //     if (response.status === 200) {
+            //         return response.json();
+            //     } else {
+            //         throw new Error('Inscription échouée');
+            //     }
+            // })
+            //     .then(data => {
+            //         console.log(data);
+            //         if (data) {
+            //             window.location.href = '/dashboard'; // Redirigez l'utilisateur sur son dashboard
+            //         } else {
+            //             alert('Échec de la connexion.');
+            //         }
+            //     })
+            //     .catch(error => {
+            //         console.error('Error:', error);
+            //         alert('Erreur lors de la connexion.');
+            //     });
+            // });
+        </script>
+    </body>
 
 </html>

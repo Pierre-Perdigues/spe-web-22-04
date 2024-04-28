@@ -1,27 +1,39 @@
 const express = require('express');
+const {creationDb} = require('./db/creationDb');
 const userRoutes = require('./routes/userRoutes');
+const path = require('path');
+const produitRoutes = require('./routes/produitRoutes');
+const statRoutes = require('./routes/statRoutes');
 const cors = require('cors');
 const app = express();
+
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
 const port = 5000;
 
-// Configuration dynamique des CORS basée sur l'environnement
+// Initialise la base de données
+creationDb()
+app.use(express.json());
+// Configure le dossier public comme un dossier de contenu statique
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+// Configuration des CORS
 const allowedOrigins = ['http://127.0.0.1:3000', 'http://127.0.0.1:5000/'];
+
+app.use('/stats',cors({origin: '*'}), statRoutes);
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Autoriser les requêtes sans origin (comme les requêtes mobiles ou CURL)
         if (!origin) return callback(null, true);
-
         if (allowedOrigins.indexOf(origin) === -1) {
-            var msg = 'Le CORS policy pour cette origine ne permet pas l\'accès';
-            return callback(new Error(msg), false);
+            return callback(new Error('Le CORS policy pour cette origine ne permet pas l\'accès'), false);
         }
         return callback(null, true);
-    }
+    },
+    credentials: true,  // Important si utilisation des sessions ou des cookies
+    allowedHeaders: ['Content-Type']  // Autoriser 'csrf-token' dans les en-têtes
 }));
-
-
-app.use(express.json());
 
 // Routes
 app.get('/', (req, res) => {
@@ -31,21 +43,13 @@ app.get('/', (req, res) => {
 // Utiliser les routes pour les utilisateurs
 app.use('/users', userRoutes);
 
-app.get("/stats", (req, res) => {
-    // const sql = "SELECT * FROM users";
-    // db.all(sql, [], (err, rows) => {
-    //     if (err) {
-    //         res.status(400).json({"error":err.message});
-    //         return;
-    //     }
-    //     res.json({
-    //         "message":"coucou",
-    //         // "data":rows
-    //     })
-    // });
-});
+// Utiliser les routes pour les produits
+app.use('/produits', produitRoutes);
+
+// Utiliser les routes pour les stats
 
 
+// Là ou tourne le serveur
 app.listen(port, () => {
     console.log(`Server running at http://127.0.0.1:${port}`);
 });

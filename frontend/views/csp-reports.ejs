@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Logs</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .log-entry {
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Log Entries</h1>
+        <% logEntries.forEach(function(entry) { %>
+            <div class="log-entry">
+                <p><strong>Timestamp:</strong> <%= entry.timestamp %></p>
+                <p><strong>Level:</strong> <%= entry.level %></p>
+                <p><strong>Message:</strong> <%= entry.message %></p>
+            </div>
+        <% }) %>
+    </div>
+</body>
+</html>
